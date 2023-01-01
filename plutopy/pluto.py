@@ -28,7 +28,7 @@ class plutoDrone():
         self.MSP = plutoMSP(self.sock)
 
         # Attaching command controls to class
-        self.cmd = plutoControl(self.activeState)
+        self.control = plutoControl(self.activeState)
     
     def writeThread(self):
         requests = [MSP_RC, MSP_ATTITUDE, MSP_RAW_IMU, MSP_ALTITUDE, MSP_ANALOG]
