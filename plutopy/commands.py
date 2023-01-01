@@ -1,4 +1,4 @@
-from protocol import *
+from .protocol import *
 
 TRIM_MAX = 1000
 TRIM_MIN = -1000

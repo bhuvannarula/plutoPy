@@ -1,6 +1,6 @@
 from time import sleep
-from protocol import *
-from commands import *
+from .protocol import *
+from .commands import *
 import threading
 
 class plutoDrone():

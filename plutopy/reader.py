@@ -1,5 +1,5 @@
-from common import *
-from plutostate import *
+from .common import *
+from .plutostate import *
 
 class plutoGET:
     def __init__(self, buffer :  plutoBuffer, responseState : plutoState) -> None:

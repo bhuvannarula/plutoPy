@@ -1,4 +1,4 @@
-from plutosock import *
+from .plutosock import *
 
 class plutoMSP:
     def __init__(self, sock : plutoSock):

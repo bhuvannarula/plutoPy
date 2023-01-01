@@ -3,7 +3,7 @@ TAKE_OFF = 1
 LAND = 2
 
 class plutoState():
-    def __init__(self, droneIndex :int) -> None:
+    def __init__(self) -> None:
         '''
         Pluto State Instance
         '''
@@ -45,7 +45,7 @@ class plutoState():
         self.trim_pitch = 0
         self.isAutoPilotOn = 0
 
-        self.droneIndex = droneIndex
+        #self.droneIndex = droneIndex
     
     def array(self) -> list[int]:
         '''

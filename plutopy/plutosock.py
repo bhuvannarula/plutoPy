@@ -1,5 +1,5 @@
 # Custom Module Imports
-from reader import *
+from .reader import *
 
 # Standard Library Imports
 from socket import *
@@ -25,10 +25,10 @@ class plutoSock:
         self.IP_ADDRESS = IP_ADDRESS
         self.PORT = PORT
 
+        self.buffer = buffer
+
         self.responseState = responseState
         self.response = plutoGET(self.buffer, self.responseState)
-
-        self.buffer = buffer
 
     def connect(self) -> bool:
         timeOut = 7 # Seconds
