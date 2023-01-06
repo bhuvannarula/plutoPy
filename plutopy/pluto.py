@@ -1,6 +1,7 @@
 from time import sleep
 from .protocol import *
 from .commands import *
+from .plutoinfo import *
 import threading
 
 class plutoDrone():
@@ -28,7 +29,10 @@ class plutoDrone():
         self.MSP = plutoMSP(self.sock)
 
         # Attaching command controls to class
-        self.control = plutoControl(self.activeState)
+        self.control = plutoControl(self.activeState, self.MSP)
+
+        # Attaching info commands to class
+        self.info = plutoInfo(self.responseState)
     
     def writeThread(self):
         requests = [MSP_RC, MSP_ATTITUDE, MSP_RAW_IMU, MSP_ALTITUDE, MSP_ANALOG]
@@ -44,7 +48,7 @@ class plutoDrone():
                 state[3] += self.activeStateAP.rcYaw - 1500
             
             self.MSP.sendRequestMSP_SET_RAW_RC(state)
-            self.MSP.sendMulRequestMSP_GET_DEBUG(requests)
+            self.MSP.sendRequestMSP_GET_DEBUG(requests)
 
             if (self.activeState.commandType != NONE_COMMAND):
                 self.MSP.sendRequestMSP_SET_COMMAND(self.activeState.commandType)
@@ -62,17 +66,24 @@ class plutoDrone():
     def serviceThread(self):
         pass
 
+    def reconnect(self):
+        self.sock.connect()
 
     def disconnect(self):
         # TODO : Send command to drone to either (stop moving, stall at one place) or (stop moving, and land) or (just stop everything)
-        self._threadsRunning = False
+        self.control.kill()
+        sleep(0.1)
+        if (self._threadsRunning):
+            self._threadsRunning = False
+            self._threads[0].join()
+            self._threads[1].join()
         self.sock.disconnect()
 
     def start(self):
         self._threadsRunning = True
         writeThread = threading.Thread(target=self.writeThread)
-        writeThread.run()
+        writeThread.start()
         readThread = threading.Thread(target=self.readThread)
-        readThread.run()
+        readThread.start()
         self._threads = [writeThread, readThread]
 

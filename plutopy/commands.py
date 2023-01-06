@@ -126,3 +126,6 @@ class plutoControl():
         self.MSP.sendRequestMSP_SET_ACC_TRIM(t_trim_roll, t_trim_pitch)
         self.MSP.sendRequestMSP_EEPROM_WRITE()
         
+    def kill(self):
+        self.reset()
+        self.cmd.rcAUX4 = 1000

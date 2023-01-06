@@ -36,7 +36,7 @@ class plutoSock:
 
         print("Connecting to Pluto......")
 
-        self.sock = socket(AF_INET, SOCK_STREAM, 0)
+        self.sock = socket(AF_INET, SOCK_STREAM)
         if (not self.sock):
             ConnectionFailed(1)
 
@@ -51,11 +51,11 @@ class plutoSock:
             ConnectionFailed(2)
 
         res = self.sock.connect_ex(addr)
-        if (res < 0):
-            if (res == errno.EINPROGRESS):
+        if (res != 0):
+            if (res in [errno.EWOULDBLOCK, errno.EINPROGRESS]): # res == errno.EINPROGRESS
                 for attempt in range(1,retry_attempts+1):
                     try:
-                        rr, rw, re = select(None, [self.sock], None, timeOut)
+                        rr, rw, re = select([], [self.sock], [], timeOut)
                     except IOError as err:
                         if (err.errno != errno.EINTR):
                             ConnectionFailed(3)
@@ -123,12 +123,13 @@ class plutoSock:
         self.sock.close()
 
     def write(self, data : list[int]) -> int:
+        data = bytes(data)
         sent = self.sock.send(data)
         if (sent == 0):
             # If No Data is sent, fail the connection
             self.sock.close()
             ConnectionError(3)
-        else:
+        elif (sent < len(data)):
             print('Low Socket Connection Speed, There might be lag.')
             while (sent < len(data)):
                 t_sent = self.sock.send(data[sent:])

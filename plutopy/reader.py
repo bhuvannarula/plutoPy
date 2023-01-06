@@ -36,13 +36,13 @@ class plutoGET:
             self.state.accY = self.read16()
             self.state.accZ = self.read16()
 
-            self.state.gyroX = self.read16()/8
-            self.state.gyroY = self.read16()/8
-            self.gyroZ = self.read16()/8
+            self.state.gyroX = self.read16() # /8
+            self.state.gyroY = self.read16() # /8
+            self.state.gyroZ = self.read16() # /8
 
-            self.state.magX = self.read16()/3
-            self.state.magY = self.read16()/3
-            self.state.magZ = self.read16()/3
+            self.state.magX = self.read16() # /3
+            self.state.magY = self.read16() # /3
+            self.state.magZ = self.read16() # /3
         
         elif (command == MSP_ATTITUDE):
             self.state.roll = int(self.read16()/10)
