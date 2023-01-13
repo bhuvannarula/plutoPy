@@ -2,11 +2,14 @@ from time import sleep
 from .protocol import *
 from .commands import *
 from .plutoinfo import *
+from .plutoPID import *
 import threading
 
 class plutoDrone():
     def __init__(self, IP_ADDRESS : str, CAMERA_IP_ADDRESS : str = '', PORT : int = 23, CAMERA_PORT :int = 9060) -> None:
         
+        self.status = 0 # Not Running
+
         # False -> Threads Stop Running
         self._threadsRunning = True
         self._threads =  []
@@ -15,12 +18,13 @@ class plutoDrone():
         self.activeState = plutoState()
         self.activeStateAP = plutoState()
         self.responseState = plutoState()
+        self.PIDconfig = profilePID()
 
         # Step 1 : Initialize the Read Buffer for Drone
         self.buffer = plutoBuffer()
 
         # Step 2 : Initialize the socket for Drone
-        self.sock = plutoSock(IP_ADDRESS, PORT, self.buffer, self.responseState)
+        self.sock = plutoSock(IP_ADDRESS, PORT, self.buffer, self.responseState, self.PIDconfig)
         
         # Step 3 : Connecting to Socket
         self.sock.connect()
@@ -33,9 +37,14 @@ class plutoDrone():
 
         # Attaching info commands to class
         self.info = plutoInfo(self.responseState)
+
+        #self.PID = altitudePID(self.responseState)
+
+        self.target_threads = [self.writeThread, self.readThread]
     
     def writeThread(self):
         requests = [MSP_RC, MSP_ATTITUDE, MSP_RAW_IMU, MSP_ALTITUDE, MSP_ANALOG]
+        requests = []
 
         self.MSP.sendRequestMSP_ACC_TRIM()
 
@@ -62,6 +71,7 @@ class plutoDrone():
     def readThread(self):
         while (self._threadsRunning):
             self.sock.readResponseMSP()
+            #self.PID.calculateEstimatedAltitude()
 
     def serviceThread(self):
         pass
@@ -81,9 +91,20 @@ class plutoDrone():
 
     def start(self):
         self._threadsRunning = True
+        self.targets = []
         writeThread = threading.Thread(target=self.writeThread)
         writeThread.start()
         readThread = threading.Thread(target=self.readThread)
         readThread.start()
         self._threads = [writeThread, readThread]
+        self.status = 1 # Running
 
+    def start1(self):
+        self._threadsRunning = True
+        self._threads = []
+        for proc in self.target_threads:
+            _t_thread = threading.Thread(target=proc)
+            _t_thread.start()
+            self._threads.append(_t_thread)
+        self.status = 1
+    

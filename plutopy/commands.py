@@ -1,4 +1,5 @@
 from .protocol import *
+from time import sleep
 
 TRIM_MAX = 1000
 TRIM_MIN = -1000
@@ -27,10 +28,12 @@ class plutoControl():
         self.cmd.rcThrottle = 1500
         self.cmd.rcAUX4 = 1500
         self.cmd.isAutoPilotOn = 0
+        sleep(1)
 
     def disarm(self):
         self.cmd.rcThrottle = 1300
         self.cmd.rcAUX4 = 1200
+        sleep(0.5)
 
     def indentify_key(self, key_value : int):
         self.key_value = key_value
@@ -104,6 +107,8 @@ class plutoControl():
         self.disarm()
         self.box_arm()
         self.updateCommand(1)
+        sleep(0.5)
+        self.reset()
         #self.cmd.commandType = 1
 
     def land(self):

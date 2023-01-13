@@ -14,9 +14,9 @@ def ConnectionFailed(code : int, msg : str = '') -> None:
 #prot = plutoGET()
 
 class plutoSock:
-    def __init__(self, IP_ADDRESS, PORT, buffer : plutoBuffer, responseState : plutoState):
-        self.sock = None
-        self.sockList = list()
+    def __init__(self, IP_ADDRESS, PORT, buffer : plutoBuffer, responseState : plutoState, PIDprofile : profilePID):
+        self.status = 0 # Not Connected
+
         self.socketSyckLock = 0
         self.c_state = IDLE
         self.offset = 0
@@ -28,7 +28,7 @@ class plutoSock:
         self.buffer = buffer
 
         self.responseState = responseState
-        self.response = plutoGET(self.buffer, self.responseState)
+        self.response = plutoGET(self.buffer, self.responseState, PIDprofile)
 
     def connect(self) -> bool:
         timeOut = 7 # Seconds
@@ -117,14 +117,19 @@ class plutoSock:
             ConnectionFailed(8, 'Socket Failed ({err})')
 
         print('Pluto Connected!')
+        self.status = 1 # Connected
         return True
 
     def disconnect(self):
         self.sock.close()
+        self.status = 0 # Disconnected
 
-    def write(self, data : list[int]) -> int:
+    def write(self, data : "list[int]") -> int:
         data = bytes(data)
-        sent = self.sock.send(data)
+        try:
+            sent = self.sock.send(data)
+        except:
+            return
         if (sent == 0):
             # If No Data is sent, fail the connection
             self.sock.close()
@@ -161,7 +166,7 @@ class plutoSock:
                 self.c_state = IDLE
         elif ((self.c_state == HEADER_ARROW) or (self.c_state == HEADER_ERR)):
             self.err_rcvd = (self.c_state == HEADER_ERR)
-            self.dataSize = ord(c) & 0xFF
+            self.dataSize = int(ord(c) & 0xFF)
             self.offset = 0
             self.checksum = 0
             self.checksum ^= self.dataSize

@@ -57,3 +57,39 @@ errors = {
     '7' : 'KeepAlive Option Failed',
     '8' : 'Socket Failed'
 }
+
+# NEW COMMANDS
+MSP_PID_CONTROLLER = 59
+MSP_SET_PID_CONTROLLER = 60
+
+MSP_RC_TUNING = 111
+MSP_PID = 112
+MSP_BOX = 113
+MSP_BOXNAMES = 116
+MSP_PIDNAMES = 117
+MSP_WP = 118
+MSP_BOXIDS = 119
+MSP_NAV_STATUS = 121
+MSP_NAV_CONFIG = 122
+
+def constrain(value : int, low: int, high : int):
+    if (low < value <  high):
+        return value
+    elif (value <= low):
+        return low
+    elif (value >= high):
+        return high
+
+def applyDeadband(value : int, deadband : int):
+    if (abs(value) < deadband):
+        value = 0
+    elif (value > 0):
+        value -= deadband
+    elif (value < 0):
+        value += deadband
+    return value
+
+def applyDeadRegion(value : int, deadband : int):
+    if (abs(value) <= deadband):
+        value = 0
+    return value

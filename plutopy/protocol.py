@@ -5,7 +5,7 @@ class plutoMSP:
         self.MSP_HEADER = MSP_HEADER
         self.socket = sock
 
-    def sendRequestMSP(self, data : list[int]) -> None:
+    def sendRequestMSP(self, data : "list[int]") -> None:
         self.socket.write(data)
 
     '''
@@ -13,7 +13,7 @@ class plutoMSP:
         com.writeMulSock(data, droneIndex)
     '''
 
-    def createPacketMSP(self, msp : int, payload : list[int]) -> list[int]:
+    def createPacketMSP(self, msp : int, payload : "list[int]") -> "list[int]":
         bf = []
         for it in MSP_HEADER:
             bf.append(int(ord(it) & 0xFF))
@@ -35,7 +35,7 @@ class plutoMSP:
         return bf
 
 
-    def sendRequestMSP_SET_RAW_RC(self, channels : list[int]) -> None:
+    def sendRequestMSP_SET_RAW_RC(self, channels : "list[int]") -> None:
         rc_signals = [0]*16
         for i in range(8):
             rc_signals[2*i] = int(channels[i] & 0xFF)
@@ -43,7 +43,7 @@ class plutoMSP:
         
         self.sendRequestMSP(self.createPacketMSP(MSP_SET_RAW_RC, rc_signals))
 
-    def sendMulRequestMSP_SET_RAW_RC(self, channels : list[int]) -> None:
+    def sendMulRequestMSP_SET_RAW_RC(self, channels : "list[int]") -> None:
         droneIndex = channels[8]
         rc_signals = [0]*16
         for i in range(8):
@@ -53,7 +53,7 @@ class plutoMSP:
         self.sendMulRequestMSP(self.createPacketMSP(MSP_SET_RAW_RC, rc_signals), droneIndex)     
 
 
-    def sendRequestMSP_SET_POS(self, posArray : list[int]) -> None:
+    def sendRequestMSP_SET_POS(self, posArray : "list[int]") -> None:
         posData = [0]*8
         for i in range(4):
             posData[2*i] = int(posArray[i] & 0xFF)
@@ -68,11 +68,11 @@ class plutoMSP:
         self.sendRequestMSP(self.createPacketMSP(MSP_SET_COMMAND, payload))
 
 
-    def sendRequestMSP_GET_DEBUG(self, requests : list[int]) -> None:
+    def sendRequestMSP_GET_DEBUG(self, requests : "list[int]") -> None:
         for i in range(len(requests)):
             self.sendRequestMSP(self.createPacketMSP(requests[i], list()))
     
-    def sendMulRequestMSP_GET_DEBUG(self, requests : list[int], droneIndex : int) -> None:
+    def sendMulRequestMSP_GET_DEBUG(self, requests : "list[int]", droneIndex : int) -> None:
         for i in range(len(requests)):
             self.sendMulRequestMSP(self.createPacketMSP(requests[i], list()), droneIndex)
 
@@ -91,3 +91,8 @@ class plutoMSP:
 
     def sendRequestMSP_EEPROM_WRITE(self) -> None:
         self.sendRequestMSP(self.createPacketMSP(MSP_EEPROM_WRITE, list()))
+    
+    # NEW FUNCTIONS
+
+    def sendRequest(self, command : int):
+        self.sendRequestMSP(self.createPacketMSP(command, list()))
