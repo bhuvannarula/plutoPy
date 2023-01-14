@@ -3,6 +3,12 @@ from plutopy import plutoDrone
 drone = plutoDrone('192.168.4.1', PORT=23)
 
 drone.start()
+drone.activeState.rcAUX3 = 1800
+
+drone.control.take_off()
+
+
+
 '''
 drone.control.take_off()
 drone.control.forward()

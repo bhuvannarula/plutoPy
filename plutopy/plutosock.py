@@ -128,7 +128,7 @@ class plutoSock:
         data = bytes(data)
         try:
             sent = self.sock.send(data)
-        except:
+        except IOError as e:
             return
         if (sent == 0):
             # If No Data is sent, fail the connection
@@ -152,7 +152,10 @@ class plutoSock:
             return c
 
     def readResponseMSP(self):
-        c = chr(int(self.read(1)))
+        try:
+            c = chr(int(self.read(1)))
+        except:
+            return None
         if (self.c_state == IDLE):
             self.c_state = (HEADER_START if (c == '$') else IDLE)
         elif (self.c_state == HEADER_START):

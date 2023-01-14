@@ -1,21 +1,11 @@
 import cv2 as cv
 import numpy as np
 from time import sleep
-#from ..plutopy import *
-#from plutopy.common import *
+from .common import *
 
 calib_path = "aruco/calib_data/MultiMatrix.npz"
 
 FRAME_DELAY = 0
-
-class arucoState:
-    def __init__(self) -> None:
-        self.X = 0
-        self.Y = 0
-        self.Z = 0
-    
-    def __repr__(self) -> str:
-        return str((self.X, self.Y, self.Z))
 
 class video:
     def __init__(self) -> None:
@@ -50,92 +40,101 @@ class arucoGPS:
         calib = np.load(calib_path)
         self.video = video()
 
-        cam_mat = calib["camMatrix"]
-        dist_coef = calib["distCoef"]
+        self.target_id = 42
+
+        self.cam_mat = calib["camMatrix"]
+        self.dist_coef = calib["distCoef"]
         r_vectors = calib["rVector"]
         t_vectors = calib["tVector"]
 
         self.MARKER_SIZE_1 = 6 # cm
         self.MARKER_SIZE_2 = 6.5 # cm
 
-        marker_dict = cv.aruco.Dictionary_get(cv.aruco.DICT_4X4_50)
-        param_markers = cv.aruco.DetectorParameters_create()
+        self.marker_dict = cv.aruco.Dictionary_get(cv.aruco.DICT_4X4_50)
+        self.param_markers = cv.aruco.DetectorParameters_create()
 
         self.coord_data = {}
 
         self.dronePos = state
 
-        while True:
-            #sleep(FRAME_DELAY)
-            frame = self.video.read()
-            gray_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-            #gray_frame = cv.bilateralFilter(gray_frame, 11, 17, 17)
-            #ret, gray_frame = cv.threshold(gray_frame, self.video.thresh, 255, cv.THRESH_BINARY)
-            gray_frame = cv.adaptiveThreshold(gray_frame, self.video.thresh, adaptiveMethod= cv.ADAPTIVE_THRESH_GAUSSIAN_C, thresholdType= cv.THRESH_BINARY, blockSize= 1, C= 2)
-            marker_corners, marker_IDs, reject = cv.aruco.detectMarkers(
-                gray_frame, marker_dict, parameters=param_markers
+    def loop(self):
+        #sleep(FRAME_DELAY)
+        frame = self.video.read()
+        gray_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+        #gray_frame = cv.bilateralFilter(gray_frame, 11, 17, 17)
+        ret, gray_frame = cv.threshold(gray_frame, self.video.thresh, 255, cv.THRESH_BINARY)
+        #gray_frame = cv.adaptiveThreshold(gray_frame, self.video.thresh, adaptiveMethod= cv.ADAPTIVE_THRESH_GAUSSIAN_C, thresholdType= cv.THRESH_BINARY, blockSize= 1, C= 2)
+        marker_corners, marker_IDs, reject = cv.aruco.detectMarkers(
+            gray_frame, self.marker_dict, parameters=self.param_markers
+        )
+
+        if marker_corners:
+            rVec, tVec, _ = cv.aruco.estimatePoseSingleMarkers(
+                marker_corners, self.MARKER_SIZE_2, self.cam_mat, self.dist_coef
             )
-
-            if marker_corners:
-                rVec, tVec, _ = cv.aruco.estimatePoseSingleMarkers(
-                    marker_corners, self.MARKER_SIZE_2, cam_mat, dist_coef
+            total_markers = range(0, marker_IDs.size)
+            for ids, corners, i in zip(marker_IDs, marker_corners, total_markers):
+                cv.polylines(
+                    frame, [corners.astype(np.int32)], True, (0, 255, 255), 4, cv.LINE_AA
                 )
-                total_markers = range(0, marker_IDs.size)
-                for ids, corners, i in zip(marker_IDs, marker_corners, total_markers):
-                    cv.polylines(
-                        frame, [corners.astype(np.int32)], True, (0, 255, 255), 4, cv.LINE_AA
-                    )
-                    corners = corners.reshape(4, 2)
-                    corners = corners.astype(int)
-                    top_right = corners[0].ravel()
-                    top_left = corners[1].ravel()
-                    bottom_right = corners[2].ravel()
-                    bottom_left =  corners[3].ravel()
+                corners = corners.reshape(4, 2)
+                corners = corners.astype(int)
+                top_right = corners[0].ravel()
+                top_left = corners[1].ravel()
+                bottom_right = corners[2].ravel()
+                bottom_left =  corners[3].ravel()
 
-                    distance = np.sqrt(
-                        tVec[i][0][2]**2 + tVec[i][0][0]**2 + tVec[i][0][1]**2
-                    )
+                distance = np.sqrt(
+                    tVec[i][0][2]**2 + tVec[i][0][0]**2 + tVec[i][0][1]**2
+                )
 
-                    _t_x = int(tVec[i][0][0]*4)/4
-                    _t_y = int(tVec[i][0][1]*4)/4
-                    _t_z = int(tVec[i][0][2]*4)/4
-                    self.coord_data[ids[0]] = [_t_x, _t_y, _t_z]
-                    #point = cv.drawFrameAxes(frame, cam_mat, dist_coef, rVec[i], tVec[i], 4, 4)
-                    cv.putText(
-                        frame,
-                        f"id: {ids[0]} Dist: {round(distance, 2)}",
-                        top_right,
-                        cv.FONT_HERSHEY_PLAIN,
-                        1.3,
-                        (0, 0, 255),
-                        2,
-                        cv.LINE_AA,
-                    )
-                    cv.putText(
-                        frame,
-                        f"x:{round(tVec[i][0][0],1)} y: {round(tVec[i][0][1],1)} ",
-                        bottom_right,
-                        cv.FONT_HERSHEY_PLAIN,
-                        1.0,
-                        (0, 0, 255),
-                        2,
-                        cv.LINE_AA,
-                    )
-                #print(self.coord_data)
+                _t_X = int((top_left[0] + bottom_right[0])/2)
+                _t_Y = int((top_left[1] + bottom_right[1])/2)
 
-                #self.dronePos.X = self.coord_data[12][0]
-                #self.dronePos.Y = self.coord_data[12][1]
-                #self.dronePos.Z = self.coord_data[12][2]
-            cv.imshow("frame", cv.resize(frame, self.video.dim2, cv.INTER_LINEAR))
-            cv.imshow("gray", cv.resize(gray_frame, self.video.dim2, cv.INTER_LINEAR))
-            key = cv.waitKey(1)
-            #key = 0
-            #if key == ord("q"):
-            #break
+                _t_x = int(tVec[i][0][0]*4)/4
+                _t_y = int(tVec[i][0][1]*4)/4
+                _t_z = int(tVec[i][0][2]*4)/4
+                self.coord_data[ids[0]] = [_t_X, _t_Y, _t_z]
+                #point = cv.drawFrameAxes(frame, cam_mat, dist_coef, rVec[i], tVec[i], 4, 4)
+                cv.putText(
+                    frame,
+                    f"id: {ids[0]} Dist: {round(distance, 2)}",
+                    top_right,
+                    cv.FONT_HERSHEY_PLAIN,
+                    1.3,
+                    (0, 0, 255),
+                    2,
+                    cv.LINE_AA,
+                )
+                cv.putText(
+                    frame,
+                    f"x:{round(tVec[i][0][0],1)} y: {round(tVec[i][0][1],1)} ",
+                    bottom_right,
+                    cv.FONT_HERSHEY_PLAIN,
+                    1.0,
+                    (0, 0, 255),
+                    2,
+                    cv.LINE_AA,
+                )
+            #print(self.coord_data)
+            if self.target_id in self.coord_data:
+                self.dronePos.update(self.coord_data[self.target_id])
+
+        cv.imshow("frame", cv.resize(frame, self.video.dim2, cv.INTER_LINEAR))
+        cv.imshow("gray", cv.resize(gray_frame, self.video.dim2, cv.INTER_LINEAR))
+        key = cv.waitKey(1)
+        if key == ord("q"):
+            return self.stop()
+        return 0
+
+    def stop(self):
         self.video.video.release()
         cv.destroyAllWindows()
+        return 1
 
 
 if __name__ == "__main__":
     state = arucoState()
     aruco = arucoGPS(state)
+    while True:
+        _err = aruco.loop()

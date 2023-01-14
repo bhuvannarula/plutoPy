@@ -6,7 +6,7 @@ from .plutoPID import *
 import threading
 
 class plutoDrone():
-    def __init__(self, IP_ADDRESS : str, CAMERA_IP_ADDRESS : str = '', PORT : int = 23, CAMERA_PORT :int = 9060) -> None:
+    def __init__(self, IP_ADDRESS : str = '192.168.4.1', CAMERA_IP_ADDRESS : str = '', PORT : int = 23, CAMERA_PORT :int = 9060, debug = False) -> None:
         
         self.status = 0 # Not Running
 
