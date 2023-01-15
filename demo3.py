@@ -73,7 +73,7 @@ class plutoArUcO:
 
             self.drone.activeState.rcRoll = 1500 + int(trim_roll)
             self.drone.activeState.rcPitch = 1500 + int(trim_pitch)
-        
+
     def start(self):
         procs = [self.arucoCVThread, self.arucoPIDThread]
         self._threads = []
