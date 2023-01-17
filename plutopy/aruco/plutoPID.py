@@ -10,21 +10,21 @@ class positionPID:
 
         self.pPOS = [0]*3
 
-        self.pPOS[X] = 0.3
-        self.pPOS[Y] = 0.8
-        self.pPOS[Z] = 0.1
+        self.pPOS[X] = 1.6
+        self.pPOS[Y] = 1.6
+        self.pPOS[Z] = 0
 
         self.pVEL = [0]*3
         self.iVEL = [0]*3
         self.dVEL = [0]*3
 
-        self.pVEL[X] = 0.4
-        self.iVEL[X] = 0.0005
-        self.dVEL[X] = 0.005
+        self.pVEL[X] = 2.4
+        self.iVEL[X] = 0
+        self.dVEL[X] = 2
 
-        self.pVEL[Y] = 0.4
-        self.iVEL[Y] = 0.0005
-        self.dVEL[Y] = 0.005
+        self.pVEL[Y] = 2.4
+        self.iVEL[Y] = 0
+        self.dVEL[Y] = 2
 
         self.pVEL[Z] = 3
         self.iVEL[Z] = 0.4

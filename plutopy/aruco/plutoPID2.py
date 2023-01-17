@@ -12,13 +12,13 @@ class positionPID:
         self.iPOS = [0]*3
         self.dPOS = [0]*3
 
-        self.pPOS[X] = 0.8
+        self.pPOS[X] = 0.2
         self.iPOS[X] = 0#.000005
-        self.dPOS[X] = 0.2
+        self.dPOS[X] = 0.5
 
-        self.pPOS[Y] = 0.8
+        self.pPOS[Y] = 0.2
         self.iPOS[Y] = 0#.000005
-        self.dPOS[Y] = 0.2
+        self.dPOS[Y] = 0.5
 
         self.pPOS[Z] = 0.2
         self.iPOS[Z] = 0.05
@@ -33,10 +33,7 @@ class positionPID:
         self.position_err[Y] = pos_err[Y]
         self.position_err[Z] = pos_err[Z]
 
-        # X, Y, Z -> P Controller
-        #setVel_X = constrain(self.pPOS[X] * pos_err[X], -500, 500) # Vel Max : 200px/s
-        #setVel_Y = constrain(self.pPOS[Y] * pos_err[Y], -500, 500) # Vel Max : 200px/s
-        #setVel_Z = constrain(self.pPOS[Z] * pos_err[Z], -100, 100) # Vel Max : 100cm/s
+        # X, Y, Z -> PID Controller
 
         # Calculating Velocity
         dt = (state.now - state.old)
@@ -73,6 +70,6 @@ class positionPID:
 
         self.last_vel = [vel_X, vel_Y, vel_Z]
 
-        self.last_result = [result_X, result_Y, result_Z]
+        self.last_result = [result_X, result_Y, 170]
 
-        return (result_X, result_Y, result_Z)
+        return (result_X, result_Y, 170)
