@@ -75,13 +75,13 @@ class graph:
                 self.ax[i].text(len(self._tt[j][i])-1, j[i][-1]+2, "{}".format(self._tt[j][i][-1]))
          
 
+if __name__ == "__main__":
+    drone = plutoDrone()
 
-drone = plutoDrone()
+    pluto = plutoArUco(drone)
+    pluto.debug = True
+    pluto.start()
 
-pluto = plutoArUco(drone)
-pluto.debug = True
-pluto.start()
-
-sleep(13)
-visual = graph(pluto)
-visual.animate() 
+    sleep(13)
+    visual = graph(pluto)
+    visual.animate() 
