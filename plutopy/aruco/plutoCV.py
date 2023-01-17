@@ -10,6 +10,7 @@ FRAME_DELAY = 0
 
 class video:
     def __init__(self) -> None:
+        self.center = (960, 540)
         self.dim_rescaled = (960, 540)
         self.dim = (1920, 1080)
         self.video = cv.VideoCapture(0, cv.CAP_DSHOW)
@@ -106,6 +107,10 @@ class arucoGPS:
                 _t_X = int((top_left[0] + bottom_right[0])/2)
                 _t_Y = int((top_left[1] + bottom_right[1])/2)
                 _t_Z = distance
+                _t_X = _t_X - self.video.center[X]
+                _t_Y = _t_Y - self.video.center[Y]
+                _t_X = int(_t_X * tc)
+                _t_Y = int(_t_Y * tc)
                 self.coord_data[ids[0]] = [_t_X, _t_Y, _t_Z]
 
                 cv.putText(

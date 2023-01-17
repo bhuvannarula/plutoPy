@@ -10,6 +10,18 @@ def deadband(y_new, y_old, dead):
     else:
         return y_new
 
+class XYZ:
+    def __init__(self) -> None:
+        self.X = 0
+        self.Y = 0
+        self.Z = 0
+    def __repr__(self) -> str:
+        return str((self.X, self.Y, self.Z))
+    def reset(self):
+        self.X = 0
+        self.Y = 0
+        self.Z = 0
+
 class arucoState:
     '''
     Class to hold the raw coordinate data, as well as the filtered coordinates.

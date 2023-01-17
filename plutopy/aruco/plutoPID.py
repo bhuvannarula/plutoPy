@@ -88,3 +88,7 @@ class positionPID:
         self.last_vel = [vel_X, vel_Y, vel_Z]
 
         return (result_X, result_Y, result_Z)
+
+class altitudePID:
+    def __init__(self) -> None:
+        pass

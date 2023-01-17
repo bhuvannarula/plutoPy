@@ -1,20 +1,8 @@
 from plutopy.aruco.plutoCV import *
-from plutopy.aruco.plutoPID import *
+from plutopy.aruco.plutoPID2 import *
 from plutopy import plutoDrone
 
 import threading
-
-class XYZ:
-    def __init__(self) -> None:
-        self.X = 0
-        self.Y = 0
-        self.Z = 0
-    def __repr__(self) -> str:
-        return str((self.X, self.Y, self.Z))
-    def reset(self):
-        self.X = 0
-        self.Y = 0
-        self.Z = 0
 
 class plutoArUco:
     def __init__(self, drone : plutoDrone) -> None:
@@ -55,16 +43,16 @@ class plutoArUco:
         '''
         Reading first 'iter_n' values & averaging to find origin, ground
         '''
-        self.origin.reset()
+        origin = XYZ()
         for _i  in range(iter_n):
             sleep(self.PIDdelay)
             _tt = self.state.X
-            self.origin.X += _tt[X]
-            self.origin.Y += _tt[Y]
-            self.origin.Z += _tt[Z]
-        self.origin.X = int(self.origin.X/iter_n)
-        self.origin.Y = int(self.origin.Y/iter_n)
-        self.origin.Z = int(self.origin.Z/iter_n)
+            origin.X += _tt[X]
+            origin.Y += _tt[Y]
+            origin.Z += _tt[Z]
+        self.origin.X = int(origin.X/iter_n)
+        self.origin.Y = int(origin.Y/iter_n)
+        self.origin.Z = int(origin.Z/iter_n)
 
     def setTarget(self, X, Y, Z):
         if (self.origin.Z == 0):

@@ -17,14 +17,18 @@ aruco = plutoArUco(drone)
 
 # Now, place the drone physically to a desired point, and set it as origin
 aruco.setOrigin()
+print(aruco.origin)
+#aruco.origin.X = 960
+#aruco.origin.Y = 540
+#aruco.origin.Z = 75
 
 # Now that origin is set, we can set TARGET for drone
 
 # So, for altitude hold, setting target:
 target = [
-    int(aruco.origin.X),
-    int(aruco.origin.Y),
-    30 # cm, Roughly 3.5 feet (3.5*30 = 105)
+    0,
+    0,
+    20 # cm, Roughly 3.5 feet (3.5*30 = 105)
 ]
 # Z (cm) should be height from ground (specifically, origin set initially)
 aruco.setTarget(*target)
