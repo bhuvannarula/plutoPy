@@ -48,7 +48,7 @@ class graph:
         self.ani = FuncAnimation(self.fig, self.arucoGraph, interval=100)
         plt.show()
 
-    def arucoGraph(self, i):
+    def arucoGraph(self, k):
         #self.fix_state = XYZ()
         #self._tt = {X:random.random()*100,Y:random.random()*100,Z:random.random()*100}
         self._tt = [
