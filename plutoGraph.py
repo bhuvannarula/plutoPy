@@ -22,9 +22,9 @@ class graph:
         self.err[X] = [0]*LEN
         self.err[Y] = [0]*LEN
         self.err[Z] = [0]*LEN
-        self.P = [0]*3
-        self.I = [0]*3
-        self.D = [0]*3
+        self.P = [0]
+        self.I = [0]
+        self.D = [0]
         self.P[X]= [0]*LEN
         self.P[Y]= [0]*LEN
         self.P[Z]= [0]*LEN
