@@ -47,7 +47,7 @@ class plutoState():
 
         #self.droneIndex = droneIndex
     
-    def array(self) -> list[int]:
+    def array(self) -> "list[int]":
         '''
         Returns the drone state as Array
         '''

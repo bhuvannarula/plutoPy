@@ -32,6 +32,7 @@ class plutoControl():
         self.cmd.rcThrottle = 1300
         self.cmd.rcAUX4 = 1200
 
+    '''
     def indentify_key(self, key_value : int):
         self.key_value = key_value
 
@@ -68,6 +69,7 @@ class plutoControl():
         elif self.key_value == 160:
             self.right_yaw()
         self.command_pub.publish(self.cmd)
+    '''
 
     def forward(self):
         self.cmd.rcPitch = 1600
@@ -102,12 +104,18 @@ class plutoControl():
 
     def take_off(self):
         self.disarm()
+        sleep(0.5)
         self.box_arm()
         self.updateCommand(1)
+        sleep(1)
+        self.updateCommand(0)
+        self.cmd.rcThrottle = 1600
         #self.cmd.commandType = 1
 
     def land(self):
         self.updateCommand(2)
+        sleep(0.5)
+        self.arm()
         #self.cmd.commandType = 2
 
     def trimRollPitch(self, trim_roll, trim_pitch):
@@ -126,6 +134,12 @@ class plutoControl():
         self.MSP.sendRequestMSP_SET_ACC_TRIM(t_trim_roll, t_trim_pitch)
         self.MSP.sendRequestMSP_EEPROM_WRITE()
         
+    def altholdMode(self):
+        self.cmd.rcAUX3 = 1500
+
+    def throttleMode(self):
+        self.cmd.rcAUX3 = 2000
+
     def kill(self):
         self.reset()
         self.cmd.rcAUX4 = 1000

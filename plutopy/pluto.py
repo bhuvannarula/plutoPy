@@ -5,7 +5,7 @@ from .plutoinfo import *
 import threading
 
 class plutoDrone():
-    def __init__(self, IP_ADDRESS : str, CAMERA_IP_ADDRESS : str = '', PORT : int = 23, CAMERA_PORT :int = 9060) -> None:
+    def __init__(self, IP_ADDRESS : str = '192.168.4.1', CAMERA_IP_ADDRESS : str = '', PORT : int = 23, CAMERA_PORT :int = 9060) -> None:
         
         # False -> Threads Stop Running
         self._threadsRunning = True
@@ -14,13 +14,13 @@ class plutoDrone():
         # Step 0 : Initialize the State Instances of Drone
         self.activeState = plutoState()
         self.activeStateAP = plutoState()
-        self.responseState = plutoState()
+        self.state = plutoState()
 
         # Step 1 : Initialize the Read Buffer for Drone
         self.buffer = plutoBuffer()
 
         # Step 2 : Initialize the socket for Drone
-        self.sock = plutoSock(IP_ADDRESS, PORT, self.buffer, self.responseState)
+        self.sock = plutoSock(IP_ADDRESS, PORT, self.buffer, self.state)
         
         # Step 3 : Connecting to Socket
         self.sock.connect()
@@ -32,7 +32,7 @@ class plutoDrone():
         self.control = plutoControl(self.activeState, self.MSP)
 
         # Attaching info commands to class
-        self.info = plutoInfo(self.responseState)
+        self.info = plutoInfo(self.state)
     
     def writeThread(self):
         requests = [MSP_RC, MSP_ATTITUDE, MSP_RAW_IMU, MSP_ALTITUDE, MSP_ANALOG]

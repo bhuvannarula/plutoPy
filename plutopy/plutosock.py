@@ -122,7 +122,7 @@ class plutoSock:
     def disconnect(self):
         self.sock.close()
 
-    def write(self, data : list[int]) -> int:
+    def write(self, data : "list[int]") -> int:
         data = bytes(data)
         sent = self.sock.send(data)
         if (sent == 0):

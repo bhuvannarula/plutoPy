@@ -1,3 +1,5 @@
+from time import sleep
+
 # THIS MIGHT BE BROKEN, KEEP IN MIND
 commands = { 
     'NONE_COMMAND' : 0,
