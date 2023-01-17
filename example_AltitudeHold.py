@@ -26,8 +26,8 @@ print(aruco.origin)
 
 # So, for altitude hold, setting target:
 target = [
-    0,
-    0,
+    aruco.origin.X,
+    aruco.origin.Y,
     20 # cm, Roughly 3.5 feet (3.5*30 = 105)
 ]
 # Z (cm) should be height from ground (specifically, origin set initially)

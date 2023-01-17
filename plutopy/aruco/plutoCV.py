@@ -109,8 +109,8 @@ class arucoGPS:
                 _t_Z = distance
                 _t_X = _t_X - self.video.center[X]
                 _t_Y = _t_Y - self.video.center[Y]
-                _t_X = int(_t_X * tc)
-                _t_Y = int(_t_Y * tc)
+                _t_X = int(_t_X / tc)
+                _t_Y = int(_t_Y / tc)
                 self.coord_data[ids[0]] = [_t_X, _t_Y, _t_Z]
 
                 cv.putText(
