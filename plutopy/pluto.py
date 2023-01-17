@@ -37,7 +37,7 @@ class plutoDrone():
     def writeThread(self):
         requests = [MSP_RC, MSP_ATTITUDE, MSP_RAW_IMU, MSP_ALTITUDE, MSP_ANALOG]
 
-        self.MSP.sendRequestMSP_ACC_TRIM()
+        #self.MSP.sendRequestMSP_ACC_TRIM()
 
         while (self._threadsRunning):
             state = self.activeState.array()
@@ -48,7 +48,7 @@ class plutoDrone():
                 state[3] += self.activeStateAP.rcYaw - 1500
             
             self.MSP.sendRequestMSP_SET_RAW_RC(state)
-            self.MSP.sendRequestMSP_GET_DEBUG(requests)
+            #self.MSP.sendRequestMSP_GET_DEBUG(requests)
 
             if (self.activeState.commandType != NONE_COMMAND):
                 self.MSP.sendRequestMSP_SET_COMMAND(self.activeState.commandType)
