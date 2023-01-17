@@ -10,11 +10,14 @@ FRAME_DELAY = 0
 
 class video:
     def __init__(self) -> None:
-        self.dim_rescaled = (1280, 720)
+        self.dim_rescaled = (960, 540)
         self.dim = (1920, 1080)
         self.video = cv.VideoCapture(0, cv.CAP_DSHOW)
+        print(self.video.isOpened())
+        if not self.video.isOpened():
+            raise ValueError
         self.video.set(cv.CAP_PROP_FPS, 40)
-        self.video.set(cv.CAP_PROP_AUTOFOCUS, 0)
+        #self.video.set(cv.CAP_PROP_AUTOFOCUS, 0)
         self.video.set(cv.CAP_PROP_FRAME_WIDTH, self.dim[0])
         self.video.set(cv.CAP_PROP_FRAME_HEIGHT, self.dim[1])
         self.video.set(cv.CAP_PROP_FOURCC, cv.VideoWriter_fourcc(*'MJPG'))
@@ -57,11 +60,14 @@ class arucoGPS:
         self.dronePos = state
 
     def loop(self):
-        frame = self.video.read()
+        try:
+            frame = self.video.read()
+        except:
+            return self.stop()
         gray_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
         # Optional Threshold Filter, default thresh = 80
-        #ret, gray_frame = cv.threshold(gray_frame, 80, 255, cv.THRESH_BINARY)
+        ret, gray_frame = cv.threshold(gray_frame, 80, 255, cv.THRESH_BINARY)
 
         # Detecting Markers
         marker_corners, marker_IDs, reject = cv.aruco.detectMarkers(

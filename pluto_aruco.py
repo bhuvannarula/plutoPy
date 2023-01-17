@@ -34,12 +34,21 @@ class plutoArUco:
 
         self.aruco = arucoGPS(self.state)
 
+        sleep(1)
+
+        _proc = self.arucoCVThread
+        _thread = threading.Thread(target=_proc)
+        _thread.start()
+        self._threads.append(_thread)
+
+        sleep(1)
+
     def arucoCVThread(self):
         while self._threadsRunning:
-            _err = aruco.loop()
+            _err = self.aruco.loop()
             if _err:
                 self._threadsRunning = False
-                self.stop()
+                self.stop_rest()
                 break
 
     def setOrigin(self, iter_n : int = 10):
@@ -64,7 +73,7 @@ class plutoArUco:
         else:
             self.target.X = X
             self.target.Y = Y
-            self.target.Z = (self.origin.Z - Z)
+            self.target.Z = Z
 
     def arucoPIDThread(self):
         # Initializing PID class
@@ -76,14 +85,14 @@ class plutoArUco:
             _err = [
                 self.target.X - _tt[X],
                 self.target.Y - _tt[Y],
-                self.target.Z - _tt[Z]
+                self.target.Z - (self.origin.Z - _tt[Z])
             ]
             if self.debug: print("Pos Err:", _err)
             
             pitch, roll, throttle = self.positionPID.output(_err, self.state)
             pitch = constrain(pitch, -80, 80)
             roll = constrain(roll, -80, 80)
-            throttle = constrain(throttle, -300, 300)
+            throttle = constrain(throttle, -600, 600)
 
             if self.debug: print("Trim Val:", roll, pitch, throttle)
             self.trims = [pitch, roll, throttle]
@@ -96,7 +105,7 @@ class plutoArUco:
     def start(self):
         if (self.origin.Z == 0):
             print("Warning: Origin not set!")
-        procs = [self.arucoCVThread, self.arucoPIDThread]
+        procs = [self.arucoPIDThread]
         self._threads = []
         self._threadsRunning = True
         for proc in procs:
