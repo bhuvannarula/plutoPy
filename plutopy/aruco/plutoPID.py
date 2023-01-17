@@ -9,26 +9,20 @@ class positionPID:
         self.unit = 1e9
 
         self.pPOS = [0]*3
+        self.iPOS = [0]*3
+        self.dPOS = [0]*3
 
-        self.pPOS[X] = 0.3
-        self.pPOS[Y] = 0.3
-        self.pPOS[Z] = 0
+        self.pPOS[X] = .4
+        self.iPOS[X] = 0.000005
+        self.dPOS[X] = 1
 
-        self.pVEL = [0]*3
-        self.iVEL = [0]*3
-        self.dVEL = [0]*3
+        self.pPOS[Y] = 0.4
+        self.iPOS[Y] = 0.000005
+        self.dPOS[Y] = 1
 
-        self.pVEL[X] = 0.4
-        self.iVEL[X] = 0.000005
-        self.dVEL[X] = 0.0025
-
-        self.pVEL[Y] = 0.4
-        self.iVEL[Y] = 0.000005
-        self.dVEL[Y] = 0.0025
-
-        self.pVEL[Z] = 0.4
-        self.iVEL[Z] = 0.000005
-        self.dVEL[Z] = 0.0025
+        self.pPOS[Z] = 5
+        self.iPOS[Z] = 1
+        self.dPOS[Z] = 1
 
         self.iTerm = [0]*3
         self.last_vel = [0]*3
@@ -53,21 +47,15 @@ class positionPID:
         vel_Y = self.unit*(_newX[Y] - _oldX[Y])/dt
         vel_Z = self.unit*(_newX[Z] - _oldX[Z])/dt
 
-        # Velocity -> PID Controller
-        vel_err = [0]*3
-        vel_err[X] = setVel_X - vel_X
-        vel_err[Y] = setVel_Y - vel_Y
-        vel_err[Z] = setVel_Z - vel_Z
-
         # Calculating the P-Term
-        result_X = constrain(self.pVEL[X] * vel_err[X], -100, 100)
-        result_Y = constrain(self.pVEL[Y] * vel_err[Y], -100, 100)
-        result_Z = constrain(self.pVEL[Z] * vel_err[Z], -100, 100)
+        result_X = constrain(self.pPOS[X] * pos_err[X], -100, 100)
+        result_Y = constrain(self.pPOS[Y] * pos_err[Y], -100, 100)
+        result_Z = constrain(self.pPOS[Z] * pos_err[Z], -100, 100)
 
         # Calculating the I-Term
-        self.iTerm[X] += (self.iVEL[X] * vel_err[X]) * dt / self.unit
-        self.iTerm[Y] += (self.iVEL[Y] * vel_err[Y]) * dt / self.unit
-        self.iTerm[Z] += (self.iVEL[Z] * vel_err[Z]) * dt / self.unit
+        self.iTerm[X] += (self.iPOS[X] * pos_err[X]) * dt / self.unit
+        self.iTerm[Y] += (self.iPOS[Y] * pos_err[Y]) * dt / self.unit
+        self.iTerm[Z] += (self.iPOS[Z] * pos_err[Z]) * dt / self.unit
 
         self.iTerm[X] = constrain(self.iTerm[X], -50, 50)
         self.iTerm[Y] = constrain(self.iTerm[Y], -50, 50)
@@ -78,9 +66,9 @@ class positionPID:
         result_Z += self.iTerm[Z]
 
         # Calculating the D-Term
-        result_X += constrain(self.dVEL[X] * (self.last_vel[X] - vel_X) * self.unit / dt, -100, 100)
-        result_Y += constrain(self.dVEL[Y] * (self.last_vel[Y] - vel_Y) * self.unit / dt, -100, 100)
-        result_Z += constrain(self.dVEL[Z] * (self.last_vel[Z] - vel_Z) * self.unit / dt, -100, 100)
+        result_X += constrain(self.dPOS[X] * (vel_X) * (-1) *  self.unit / dt, -100, 100)
+        result_Y += constrain(self.dPOS[Y] * (vel_Y) * (-1) *  self.unit / dt, -100, 100)
+        result_Z += constrain(self.dPOS[Z] * (vel_Z) * (-1) *  self.unit / dt, -100, 100)
 
         self.last_vel = [vel_X, vel_Y, vel_Z]
 
