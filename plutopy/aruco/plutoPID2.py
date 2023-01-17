@@ -26,6 +26,9 @@ class positionPID:
 
         self.iTerm = [0]*3
         self.last_vel = [0]*3
+        self.lastP=[0]*3
+        self.lastI=[0]*3
+        self.lastD=[0]*3
         self.last_result = [0]*3
 
     def output(self, pos_err : list, state : arucoState):
@@ -52,11 +55,14 @@ class positionPID:
         result_X = constrain(self.pPOS[X] * pos_err[X], -500, 500)
         result_Y = constrain(self.pPOS[Y] * pos_err[Y], -500, 500)
         result_Z = constrain(self.pPOS[Z] * pos_err[Z], -500, 500)
-
+        p_x = constrain(self.pPOS[X] * pos_err[X], -500, 500)
+        p_y = constrain(self.pPOS[Y] * pos_err[Y], -500, 500)
+        p_z = constrain(self.pPOS[Z] * pos_err[Z], -500, 500)
         # Calculating the I-Term
         self.iTerm[X] += (self.iPOS[X] * pos_err[X]) * dt / self.unit
         self.iTerm[Y] += (self.iPOS[Y] * pos_err[Y]) * dt / self.unit
         self.iTerm[Z] += (self.iPOS[Z] * pos_err[Z]) * dt / self.unit
+        
 
         self.iTerm[X] = constrain(self.iTerm[X], -50, 50)
         self.iTerm[Y] = constrain(self.iTerm[Y], -50, 50)
@@ -65,11 +71,20 @@ class positionPID:
         result_X += self.iTerm[X]
         result_Y += self.iTerm[Y]
         result_Z += self.iTerm[Z]
-
+        i_x=self.iTerm[X]
+        i_y=self.iTerm[Y]
+        i_z=self.iTerm[Z]
         # Calculating the D-Term
         result_X += constrain(self.dPOS[X] * (vel_X) * (-1), -500, 500)
         result_Y += constrain(self.dPOS[Y] * (vel_Y) * (-1), -500, 500)
         result_Z += constrain(self.dPOS[Z] * (vel_Z) * (-1), -500, 500)
+        d_x= constrain(self.dPOS[X] * (vel_X) * (-1), -500, 500)
+        d_y= constrain(self.dPOS[Y] * (vel_Y) * (-1), -500, 500)
+        d_z= constrain(self.dPOS[Z] * (vel_Z) * (-1), -500, 500)
+
+        self.lastP = [p_x,p_y,p_z]
+        self.lastI = [i_x,i_y,i_z]
+        self.lastD = [d_x,d_y,d_z]
 
         self.last_vel = [vel_X, vel_Y, vel_Z]
 
