@@ -66,9 +66,9 @@ class positionPID:
         result_Z += self.iTerm[Z]
 
         # Calculating the D-Term
-        result_X += constrain(self.dPOS[X] * (vel_X) * (-1) *  self.unit / dt, -100, 100)
-        result_Y += constrain(self.dPOS[Y] * (vel_Y) * (-1) *  self.unit / dt, -100, 100)
-        result_Z += constrain(self.dPOS[Z] * (vel_Z) * (-1) *  self.unit / dt, -100, 100)
+        result_X += constrain(self.dPOS[X] * (vel_X) * (-1), -100, 100)
+        result_Y += constrain(self.dPOS[Y] * (vel_Y) * (-1), -100, 100)
+        result_Z += constrain(self.dPOS[Z] * (vel_Z) * (-1), -100, 100)
 
         self.last_vel = [vel_X, vel_Y, vel_Z]
 
