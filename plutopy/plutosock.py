@@ -124,7 +124,15 @@ class plutoSock:
 
     def write(self, data : "list[int]") -> int:
         data = bytes(data)
-        sent = self.sock.send(data)
+        try:
+            sent = self.sock.send(data)
+        except WindowsError as winerror:
+            print(winerror)
+            if winerror.errno == 10053:
+                self.connect()
+                return None
+            else:
+                raise winerror
         if (sent == 0):
             # If No Data is sent, fail the connection
             self.sock.close()
