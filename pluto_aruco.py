@@ -20,6 +20,8 @@ class plutoArUco:
         self.debug = 0
         self._threads = []
 
+        self.procs = [self.arucoPIDThread]
+
         self.aruco = arucoGPS(self.state)
 
         sleep(1)
@@ -93,10 +95,9 @@ class plutoArUco:
     def start(self):
         if (self.origin.Z == 0):
             print("Warning: Origin not set!")
-        procs = [self.arucoPIDThread]
         self._threads = []
         self._threadsRunning = True
-        for proc in procs:
+        for proc in self.procs:
             _thread = threading.Thread(target=proc)
             _thread.start()
             self._threads.append(_thread)

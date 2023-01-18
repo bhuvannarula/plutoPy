@@ -10,7 +10,7 @@ drone = plutoDrone()
 drone.control.throttleMode()
 
 # Starting MSP Communication with drone
-drone.start()
+#drone.start()
 
 # Creating an ArUco Control instance, that will perform PID on drone
 aruco = plutoArUco(drone)
@@ -34,10 +34,15 @@ target = [
 # Z (cm) should be height from ground (specifically, origin set initially)
 aruco.setTarget(*target)
 
+visual = graph(aruco)
+
 # Once initial target is set, we can take-off the drone, and start the PID
-drone.control.take_off()
+#drone.control.take_off()
+
 aruco.start() # Starts the PID script
 
+visual.animate()
+
 # Now, wait until user presses 'Enter' key, then stop all code, and close the socket.
-_ = input()
-aruco.stop()
+#_ = input()
+#aruco.stop()

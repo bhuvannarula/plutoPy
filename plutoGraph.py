@@ -18,13 +18,13 @@ class graph:
         self.state = aruco
         self.debug = 0
         LEN = 20
-        self.err = []
+        self.err = [0]*3
         self.err[X] = [0]*LEN
         self.err[Y] = [0]*LEN
         self.err[Z] = [0]*LEN
-        self.P = [0]
-        self.I = [0]
-        self.D = [0]
+        self.P = [0]*3
+        self.I = [0]*3
+        self.D = [0]*3
         self.P[X]= [0]*LEN
         self.P[Y]= [0]*LEN
         self.P[Z]= [0]*LEN
@@ -37,13 +37,13 @@ class graph:
         self.st = [self.err,self.P,self.I,self.D]
     def animate(self):
         self.fig = plt.figure(figsize=(12,6),facecolor='#DEDEDE')
-        self.ax = []
+        self.ax = [0]*3
         self.ax[X] = plt.subplot(131)
         self.ax[Y] = plt.subplot(132)
         self.ax[Z] = plt.subplot(133) 
-        self.ax.set_facecolor('#DEDEDE')
-        self.axy.set_facecolor('#DEDEDE')
-        self.axz.set_facecolor('#DEDEDE')
+        self.ax[X].set_facecolor('#DEDEDE')
+        self.ax[Y].set_facecolor('#DEDEDE')
+        self.ax[Z].set_facecolor('#DEDEDE')
         # animate
         self.ani = FuncAnimation(self.fig, self.arucoGraph, interval=100)
         plt.show()
@@ -66,13 +66,13 @@ class graph:
         ]
         '''
         for i in range(3):
-            for j in range(5):
-                self._tt[j][i].pop(0)
-                self._tt[j][i].append(self._tt[j][i])
+            for j in range(4):
+                self.st[j][i].pop(0)
+                self.st[j][i].append(self._tt[j][i])
                 self.ax[i].cla()
-                self.ax[i].plot(self._tt[j][i])
-                self.ax[i].scatter(len(self._tt[j][i])-1, self._tt[j][i][-1])
-                self.ax[i].text(len(self._tt[j][i])-1, j[i][-1]+2, "{}".format(self._tt[j][i][-1]))
+                self.ax[i].plot(self.st[j][i])
+                self.ax[i].scatter(len(self.st[j][i])-1, self.st[j][i][-1])
+                self.ax[i].text(len(self.st[j][i])-1, self.st[j][i][-1]+2, "{}".format(self.st[j][i][-1]))
          
 
 if __name__ == "__main__":
