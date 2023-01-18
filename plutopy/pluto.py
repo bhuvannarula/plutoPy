@@ -23,7 +23,7 @@ class plutoDrone():
         self.sock = plutoSock(IP_ADDRESS, PORT, self.buffer, self.state)
         
         # Step 3 : Connecting to Socket
-        self.sock.connect()
+        # self.sock.connect()
 
         # Step 4 : Initialize MSP Instance
         self.MSP = plutoMSP(self.sock)

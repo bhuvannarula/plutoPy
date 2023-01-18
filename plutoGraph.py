@@ -66,10 +66,10 @@ class graph:
         ]
         '''
         for i in range(3):
+            self.ax[i].cla()
             for j in range(4):
                 self.st[j][i].pop(0)
                 self.st[j][i].append(self._tt[j][i])
-                self.ax[i].cla()
                 self.ax[i].plot(self.st[j][i])
                 self.ax[i].scatter(len(self.st[j][i])-1, self.st[j][i][-1])
                 self.ax[i].text(len(self.st[j][i])-1, self.st[j][i][-1]+2, "{}".format(self.st[j][i][-1]))
