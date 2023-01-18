@@ -34,7 +34,12 @@ class graph:
         self.D[X]= [0]*LEN
         self.D[Y]= [0]*LEN
         self.D[Z]= [0]*LEN
-        self.st = [self.err,self.P,self.I,self.D]
+        self.lastresult = [0]*3
+        self.lastresult[X]= [0]*LEN
+        self.lastresult[Y]= [0]*LEN
+        self.lastresult[Z]= [0]*LEN
+        self.st = [self.err,self.P,self.I,self.D,self.lastresult]
+        self.label = ['error','P','I','D','result']
     def animate(self):
         self.fig = plt.figure(figsize=(12,6),facecolor='#DEDEDE')
         self.ax = [0]*3
@@ -66,14 +71,15 @@ class graph:
         ]
         '''
         for i in range(3):
-            for j in range(4):
+            self.ax[i].cla()
+            for j in (0,1,3,4):
                 self.st[j][i].pop(0)
                 self.st[j][i].append(self._tt[j][i])
-                self.ax[i].cla()
-                self.ax[i].plot(self.st[j][i])
+                self.ax[i].plot(self.st[j][i],label=self.label[j])
                 self.ax[i].scatter(len(self.st[j][i])-1, self.st[j][i][-1])
                 self.ax[i].text(len(self.st[j][i])-1, self.st[j][i][-1]+2, "{}".format(self.st[j][i][-1]))
-         
+            self.ax[i].set_ylim(300,-300)
+            self.ax[i].legend()
 
 if __name__ == "__main__":
     drone = plutoDrone()
@@ -84,4 +90,4 @@ if __name__ == "__main__":
 
     sleep(13)
     visual = graph(pluto)
-    visual.animate() 
+    visual.animate()
