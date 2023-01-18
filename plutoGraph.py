@@ -18,26 +18,45 @@ class graph:
         self.state = aruco
         self.debug = 0
         LEN = 20
-        self.err_x = [0]*LEN
-        self.err_y = [0]*LEN
-        self.vel_x = [0]*LEN
-        self.vel_y = [0]*LEN
+        self.err = []
+        self.err[X] = [0]*LEN
+        self.err[Y] = [0]*LEN
+        self.err[Z] = [0]*LEN
+        self.P = [0]
+        self.I = [0]
+        self.D = [0]
+        self.P[X]= [0]*LEN
+        self.P[Y]= [0]*LEN
+        self.P[Z]= [0]*LEN
+        self.I[X]= [0]*LEN
+        self.I[Y]= [0]*LEN
+        self.I[Z]= [0]*LEN
+        self.D[X]= [0]*LEN
+        self.D[Y]= [0]*LEN
+        self.D[Z]= [0]*LEN
+        self.st = [self.err,self.P,self.I,self.D]
     def animate(self):
         self.fig = plt.figure(figsize=(12,6),facecolor='#DEDEDE')
-        self.ax = plt.subplot(121)
+        self.ax = []
+        self.ax[X] = plt.subplot(131)
+        self.ax[Y] = plt.subplot(132)
+        self.ax[Z] = plt.subplot(133) 
         self.ax.set_facecolor('#DEDEDE')
+        self.axy.set_facecolor('#DEDEDE')
+        self.axz.set_facecolor('#DEDEDE')
         # animate
         self.ani = FuncAnimation(self.fig, self.arucoGraph, interval=100)
         plt.show()
 
-    def arucoGraph(self, i):
+    def arucoGraph(self, k):
         #self.fix_state = XYZ()
         #self._tt = {X:random.random()*100,Y:random.random()*100,Z:random.random()*100}
         self._tt = [
-            self.state._err[0],
-            self.state._err[1],
-            self.state.trims[0],
-            self.state.trims[1]
+            self.state.positionPID.position_err,
+            self.state.positionPID.lastP,
+            self.state.positionPID.lastI,
+            self.state.positionPID.lastD,
+            self.state.positionPID.last_result
         ]
         '''
         self._err = [
@@ -46,39 +65,23 @@ class graph:
             self._tt[Z]
         ]
         '''
-        self.err_x.pop(0)
-        self.err_x.append(self._tt[0])
-        self.err_y.pop(0)
-        self.err_y.append(self._tt[1])
-        self.vel_x.pop(0)
-        self.vel_x.append(self._tt[2])
-        self.vel_y.pop(0)
-        self.vel_y.append(self._tt[3])
-        self.ax.cla()
-        self.ax.plot(self.err_x)
-        self.ax.scatter(len(self.err_x)-1, self.err_x[-1])
-        self.ax.text(len(self.err_x)-1, self.err_x[-1]+2, "{}%".format(self.err_x[-1]))
-        #self.ax.set_ylim(0,100)
-        self.ax.plot(self.err_y)
-        self.ax.scatter(len(self.err_y)-1, self.err_y[-1])
-        self.ax.text(len(self.err_y)-1, self.err_y[-1]+2, "{}%".format(self.err_y[-1]))
-        #self.ax.set_ylim(0,100)
-        self.ax.plot(self.vel_x)
-        self.ax.scatter(len(self.vel_x)-1, self.vel_x[-1])
-        self.ax.text(len(self.vel_x)-1, self.vel_x[-1]+2, "{}%".format(self.vel_x[-1]))
-        #self.ax.set_ylim(0,100)
-        self.ax.plot(self.vel_y)
-        self.ax.scatter(len(self.vel_y)-1, self.vel_y[-1])
-        self.ax.text(len(self.vel_y)-1, self.vel_y[-1]+2, "{}%".format(self.vel_y[-1]))
-        #self.ax.set_ylim(0,100) 
+        for i in range(3):
+            for j in range(5):
+                self._tt[j][i].pop(0)
+                self._tt[j][i].append(self._tt[j][i])
+                self.ax[i].cla()
+                self.ax[i].plot(self._tt[j][i])
+                self.ax[i].scatter(len(self._tt[j][i])-1, self._tt[j][i][-1])
+                self.ax[i].text(len(self._tt[j][i])-1, j[i][-1]+2, "{}".format(self._tt[j][i][-1]))
+         
 
+if __name__ == "__main__":
+    drone = plutoDrone()
 
-drone = plutoDrone()
+    pluto = plutoArUco(drone)
+    pluto.debug = True
+    pluto.start()
 
-pluto = plutoArUco(drone)
-pluto.debug = True
-pluto.start()
-
-sleep(13)
-visual = graph(pluto)
-visual.animate() 
+    sleep(13)
+    visual = graph(pluto)
+    visual.animate() 
