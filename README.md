@@ -18,5 +18,5 @@ To import it, simply run the following code(s),
 For further use, refer to 'example_BasicControls.py' script in GitHub Repo
 
 #### For a Swarm
-    from plutopy import plutoSwarm
+    from plutopy import plutoSwarm,
 For further use, refer to 'example_DroneSwarm.py' script in GitHub Repo
