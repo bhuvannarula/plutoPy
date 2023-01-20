@@ -5,25 +5,36 @@ from .plutoinfo import *
 import threading
 
 class plutoDrone():
-    def __init__(self, IP_ADDRESS : str = '192.168.4.1', CAMERA_IP_ADDRESS : str = '', PORT : int = 23, CAMERA_PORT :int = 9060) -> None:
-        
+    def __init__(self, IP_ADDRESS : str = '192.168.4.1', PORT : int = 23, CAMERA_IP_ADDRESS : str = None, CAMERA_PORT :int = 9060) -> None:
+        '''
+        A Pluto Drone Instance
+
+        Provides methods to send commands to drone,
+        and access sensor data from drone.
+
+        IP_ADDRESS : str (default '192.168.4.1')
+        PORT : int (default 23)
+        CAMERA_IP_ADDRESS : str (default None)
+        CAMERA_PORT : int (default 9060)
+        '''
+        self.IP_ADDRESS = IP_ADDRESS
+        self.PORT = PORT
+
         # False -> Threads Stop Running
         self._threadsRunning = True
         self._threads =  []
 
-        # Step 0 : Initialize the State Instances of Drone
+        # Step 1 : Initialize the State Instances of Drone
         self.activeState = plutoState()
-        self.activeStateAP = plutoState()
+        self.rc = self.activeState
+        #self.activeStateAP = plutoState()
         self.state = plutoState()
 
-        # Step 1 : Initialize the Read Buffer for Drone
+        # Step 2 : Initialize the Read Buffer for Drone
         self.buffer = plutoBuffer()
 
-        # Step 2 : Initialize the socket for Drone
+        # Step 3 : Initialize the socket for Drone
         self.sock = plutoSock(IP_ADDRESS, PORT, self.buffer, self.state)
-        
-        # Step 3 : Connecting to Socket
-        self.sock.connect()
 
         # Step 4 : Initialize MSP Instance
         self.MSP = plutoMSP(self.sock)
@@ -35,9 +46,13 @@ class plutoDrone():
         self.info = plutoInfo(self.state)
     
     def writeThread(self):
-        requests = [MSP_RC, MSP_ATTITUDE, MSP_RAW_IMU, MSP_ALTITUDE, MSP_ANALOG]
+        '''
+        Thread that continuously sends RC Data to Drone
+        '''
+        #requests = [MSP_RC, MSP_ATTITUDE, MSP_RAW_IMU, MSP_ALTITUDE, MSP_ANALOG]
+        requests = [MSP_ATTITUDE, MSP_ALTITUDE, MSP_RAW_IMU, MSP_ANALOG]
 
-        #self.MSP.sendRequestMSP_ACC_TRIM()
+        self.MSP.sendRequestMSP_ACC_TRIM()
 
         while (self._threadsRunning):
             state = self.activeState.array()
@@ -48,7 +63,7 @@ class plutoDrone():
                 state[3] += self.activeStateAP.rcYaw - 1500
             
             self.MSP.sendRequestMSP_SET_RAW_RC(state)
-            #self.MSP.sendRequestMSP_GET_DEBUG(requests)
+            self.MSP.sendRequestMSP_GET_DEBUG(requests)
 
             if (self.activeState.commandType != NONE_COMMAND):
                 self.MSP.sendRequestMSP_SET_COMMAND(self.activeState.commandType)
@@ -60,17 +75,22 @@ class plutoDrone():
             sleep(0.022)
 
     def readThread(self):
+        '''
+        Thread that continuously reads response from Drone
+        '''
         while (self._threadsRunning):
             self.sock.readResponseMSP()
 
-    def serviceThread(self):
-        pass
-
     def reconnect(self):
+        '''
+        Reconnecting the socket to Drone
+        '''
         self.sock.connect()
 
     def disconnect(self):
-        # TODO : Send command to drone to either (stop moving, stall at one place) or (stop moving, and land) or (just stop everything)
+        '''
+        Disarm the Drone, and close the connection
+        '''
         self.control.kill()
         sleep(0.1)
         if (self._threadsRunning):
@@ -80,6 +100,12 @@ class plutoDrone():
         self.sock.disconnect()
 
     def start(self):
+        '''
+        Establish Communication, and start required threads
+        '''
+        # Connecting Socket to Drone
+        self.sock.connect()
+
         self._threadsRunning = True
         writeThread = threading.Thread(target=self.writeThread)
         writeThread.start()

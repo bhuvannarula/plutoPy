@@ -59,3 +59,11 @@ errors = {
     '7' : 'KeepAlive Option Failed',
     '8' : 'Socket Failed'
 }
+
+def constrain(value : int, low: int, high : int):
+    if (low < value <  high):
+        return value
+    elif (value <= low):
+        return low
+    elif (value >= high):
+        return high

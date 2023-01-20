@@ -13,6 +13,9 @@ class plutoControl():
             self.cmd.commandType = commandType
         
     def arm(self):
+        '''
+        Arm the Drone
+        '''
         self.cmd.rcRoll = 1500
         self.cmd.rcYaw = 1500
         self.cmd.rcPitch = 1500
@@ -32,77 +35,89 @@ class plutoControl():
         self.cmd.rcThrottle = 1300
         self.cmd.rcAUX4 = 1200
 
-    '''
-    def indentify_key(self, key_value : int):
-        self.key_value = key_value
+    def forward(self, value = 100):
+        '''
+        Move the drone forward
 
-        if self.key_value == 70:
-            if(self.cmd.rcAUX4 == 1500):
-                self.disarm()
-            else:
-                self.arm()
-        elif self.key_value == 10:
-            self.forward()
-        elif self.key_value == 30:
-            self.left()
-        elif self.key_value == 40:
-            self.right()
-        elif self.key_value == 80:
-            self.reset()
-        elif self.key_value == 90:
-            if(self.cmd.isAutoPilotOn == 1):
-                self.cmd.isAutoPilotOn = 0
-            else:
-                self.cmd.isAutoPilotOn = 1
-        elif self.key_value == 50:
-            self.increase_height()
-        elif self.key_value == 60:
-            self.decrease_height()
-        elif self.key_value == 110:
-            self.backward()
-        elif self.key_value == 130:
-            self.take_off()
-        elif self.key_value == 140:
-            self.land()
-        elif self.key_value == 150:
-            self.left_yaw()
-        elif self.key_value == 160:
-            self.right_yaw()
-        self.command_pub.publish(self.cmd)
-    '''
+        value (default 100) : offset for pitch, range (0, 500)
+        '''
+        value = constrain(value, 0, 500)
+        self.cmd.rcPitch = 1500 + value
 
-    def forward(self):
-        self.cmd.rcPitch = 1600
+    def backward(self, value = 100):
+        '''
+        Move the drone backward
 
-    def backward(self):
-        self.cmd.rcPitch = 1400
+        value (default 100) : offset for pitch, range (0, 500)
+        '''
+        value = constrain(value, 0, 500)
+        self.cmd.rcPitch = 1500 - value
 
-    def left(self):
-        self.cmd.rcRoll = 1400
+    def left(self, value = 100):
+        '''
+        Move the drone towards left
 
-    def right(self):
-        self.cmd.rcRoll = 1600
+        value (default 100) : in range (0, 500)
+        '''
+        value = constrain(value, 0, 500)
+        self.cmd.rcRoll = 1500 - value
+
+    def right(self, value = 100):
+        '''
+        Move the drone towards right
+
+        value (default 100) : in range (0, 500)
+        '''
+        value = constrain(value, 0, 500)
+        self.cmd.rcRoll = 1500 + value
 
     def left_yaw(self):
+        '''
+        Rotate the drone towards left
+        '''
         self.cmd.rcYaw = 1200
 
     def right_yaw(self):
+        '''
+        Rotate the drone towards right
+        '''
         self.cmd.rcYaw = 1800
 
     def reset(self):
+        '''
+        Reset the drone state (drone hovers)
+        '''
         self.cmd.rcRoll = 1500
         self.cmd.rcThrottle = 1500
         self.cmd.rcPitch = 1500
         self.cmd.rcYaw = 1500
         self.cmd.commandType = 0
 
-    def increase_height(self):
-        self.cmd.rcThrottle = 1800
+    def increase_height(self, value = 300):
+        '''
+        Increase the drone height
 
-    def decrease_height(self):
-        self.cmd.rcThrottle = 1300
+        value (default 300) : in range (0, 500)
+        '''
+        value = constrain(value, 0, 500)
+        self.cmd.rcThrottle = 1500 + value
+
+    def decrease_height(self, value = 100):
+        '''
+        Decrease the drone height
+
+        value (default 300) : in range (0, 500)
+        '''
+        value = constrain(value, 0, 500)
+        self.cmd.rcThrottle = 1500 - value
 
     def take_off(self):
+        '''
+        Take-Off Sequence for drone
+
+        Drone will hover close to ground.
+        '''
+        self.reset()
         self.disarm()
         sleep(0.5)
         self.box_arm()
@@ -110,36 +125,52 @@ class plutoControl():
         sleep(1)
         self.updateCommand(0)
         self.cmd.rcThrottle = 1600
-        #self.cmd.commandType = 1
 
     def land(self):
+        '''
+        Landing Sequence for drone
+        '''
+        self.reset()
         self.updateCommand(2)
         sleep(0.5)
         self.arm()
         #self.cmd.commandType = 2
 
     def trimRollPitch(self, trim_roll, trim_pitch):
+        '''
+        Setting custom trim roll & pitch
+
+        trim_roll : int, in range (-1000, 1000)
+        trim_pitch : int, in range (-1000, 1000)
+        '''
         t_trim_roll = self.cmd.trim_roll + trim_roll
         t_trim_pitch = self.cmd.trim_pitch + trim_pitch
-        if (t_trim_roll > TRIM_MAX):
-            t_trim_roll = TRIM_MAX
-        elif (t_trim_roll < TRIM_MIN):
-            t_trim_roll = TRIM_MIN
-        if (t_trim_pitch > TRIM_MAX):
-            t_trim_pitch = TRIM_MAX
-        elif (t_trim_pitch < TRIM_MIN):
-            t_trim_pitch = TRIM_MIN
+
+        t_trim_roll = constrain(t_trim_roll, TRIM_MIN, TRIM_MAX)
+        t_trim_pitch = constrain(t_trim_pitch, TRIM_MIN, TRIM_MAX)
+
         self.cmd.trim_roll = t_trim_roll
         self.cmd.trim_pitch = t_trim_pitch
         self.MSP.sendRequestMSP_SET_ACC_TRIM(t_trim_roll, t_trim_pitch)
         self.MSP.sendRequestMSP_EEPROM_WRITE()
         
     def altholdMode(self):
+        '''
+        Set Drone to Altitude Hold Mode (ON by default)
+        Throttle Mode will turn OFF.
+        '''
         self.cmd.rcAUX3 = 1500
 
     def throttleMode(self):
+        '''
+        Set Drone to Throttle Mode (OFF by default)
+        Altitude Hold Mode will turn OFF.
+        '''
         self.cmd.rcAUX3 = 2000
 
     def kill(self):
+        '''
+        Reset the state of drone, and disarm it.
+        '''
         self.reset()
         self.cmd.rcAUX4 = 1000
