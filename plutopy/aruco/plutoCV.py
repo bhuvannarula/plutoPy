@@ -60,7 +60,7 @@ class arucoGPS:
 
         self.dronePos = state
 
-    def loop(self):
+    def loop(self, target : XYZ):
         try:
             frame = self.video.read()
         except:
@@ -104,14 +104,19 @@ class arucoGPS:
                 tc = (t_area/t_area_ref)**0.5
                 distance = calib_val[1]/tc
 
-                _t_X = int((top_left[0] + bottom_right[0])/2)
-                _t_Y = int((top_left[1] + bottom_right[1])/2)
+                _t_Xo = int((top_left[0] + bottom_right[0])/2)
+                _t_Yo = int((top_left[1] + bottom_right[1])/2)
                 _t_Z = distance
-                _t_X = _t_X - self.video.center[X]
-                _t_Y = _t_Y - self.video.center[Y]
+                _t_X = _t_Xo - self.video.center[X]
+                _t_Y = _t_Yo - self.video.center[Y]
                 _t_X = int(_t_X / tc)
                 _t_Y = int(_t_Y / tc)
                 self.coord_data[ids[0]] = [_t_X, _t_Y, _t_Z]
+
+                _target_X = int(target.X * tc) + self.video.center[X]
+                _target_Y = int(target.Y * tc) + self.video.center[Y]
+
+                cv.line(frame, (_target_X, _target_Y), (_t_Xo, _t_Yo), (0, 0, 255), 4, cv.LINE_AA)
 
                 cv.putText(
                     frame,

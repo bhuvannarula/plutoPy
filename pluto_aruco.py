@@ -35,7 +35,7 @@ class plutoArUco:
 
     def arucoCVThread(self):
         while self._threadsRunning:
-            _err = self.aruco.loop()
+            _err = self.aruco.loop(self.target)
             if _err:
                 self._threadsRunning = False
                 self.stop_rest()
