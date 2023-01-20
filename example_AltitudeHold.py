@@ -19,8 +19,8 @@ aruco = plutoArUco(drone)
 # Now, place the drone physically to a desired point, and set it as origin
 aruco.setOrigin()
 print(aruco.origin)
-#aruco.origin.X = 960
-#aruco.origin.Y = 540
+#aruco.origin.X = 0
+#aruco.origin.Y = 0
 #aruco.origin.Z = 75
 
 # Now that origin is set, we can set TARGET for drone
