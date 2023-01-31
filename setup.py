@@ -10,7 +10,7 @@ setup(
         '': ['*.py']
     },
     install_requires=[],
-    version='1.0',
+    version='1.1',
     license='MIT',
     description='A Python Wrapper for Controlling Pluto Drone',
     #long_description=open('README.md').read(),
