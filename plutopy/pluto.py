@@ -56,21 +56,24 @@ class plutoDrone():
 
         while (self._threadsRunning):
             state = self.activeState.array()
+            '''
             if (self.activeState.isAutoPilotOn and state[7]):
                 state[0] += self.activeStateAP.rcRoll - 1500
                 state[1] += self.activeStateAP.rcPitch - 1500
                 state[2] += self.activeStateAP.rcThrottle - 1500
                 state[3] += self.activeStateAP.rcYaw - 1500
-            
+            '''
             self.MSP.sendRequestMSP_SET_RAW_RC(state)
             self.MSP.sendRequestMSP_GET_DEBUG(requests)
 
             if (self.activeState.commandType != NONE_COMMAND):
                 self.MSP.sendRequestMSP_SET_COMMAND(self.activeState.commandType)
-                self.activeStateAP.commandType = NONE_COMMAND
+                self.activeState.commandType = NONE_COMMAND
+            '''
             elif (self.activeStateAP.commandType != NONE_COMMAND and self.activeState.isAutoPilotOn and (state[7] == 1500)):
                 self.MSP.sendRequestMSP_SET_COMMAND(self.activeStateAP.commandType)
                 self.activeStateAP.commandType = NONE_COMMAND
+            '''
             
             sleep(0.022)
 
@@ -95,9 +98,10 @@ class plutoDrone():
         sleep(0.1)
         if (self._threadsRunning):
             self._threadsRunning = False
-            self._threads[0].join()
-            self._threads[1].join()
-        self.sock.disconnect()
+            for _i in self._threads:
+                self._threads[_i].join()
+        if self._threads:
+            self.sock.disconnect()
 
     def start(self):
         '''
