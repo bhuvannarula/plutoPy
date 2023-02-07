@@ -9,8 +9,9 @@ class plutoControl():
         self.MSP = MSP
 
     def updateCommand(self, commandType : int):
-        if (self.cmd.commandType == NONE_COMMAND) :
+        if (self.cmd.commandType != commandType) :
             self.cmd.commandType = commandType
+            self.MSP.sendRequestMSP_SET_COMMAND(self.cmd.commandType)
         
     def arm(self):
         '''
@@ -122,9 +123,9 @@ class plutoControl():
         sleep(0.5)
         self.box_arm()
         self.updateCommand(1)
-        sleep(1)
+        sleep(0.5)
         self.updateCommand(0)
-        self.cmd.rcThrottle = 1600
+        self.cmd.rcThrottle = 1550
 
     def land(self):
         '''
@@ -167,6 +168,20 @@ class plutoControl():
         Altitude Hold Mode will turn OFF.
         '''
         self.cmd.rcAUX3 = 2000
+
+    def magholdMode(self):
+        '''
+        Set Drone to Mag Hold Mode (ON by default)
+        HeadFree Mode will turn OFF.
+        '''
+        self.cmd.rcAUX1 = 1000
+    
+    def headfreeMode(self):
+        '''
+        Set Drone to HeadFree Mode (ON by default)
+        Mag Hold Mode will turn OFF.
+        '''
+        self.cmd.rcAUX1 = 1500
 
     def kill(self):
         '''

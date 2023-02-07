@@ -27,7 +27,6 @@ class plutoDrone():
         # Step 1 : Initialize the State Instances of Drone
         self.activeState = plutoState()
         self.rc = self.activeState
-        #self.activeStateAP = plutoState()
         self.state = plutoState()
 
         # Step 2 : Initialize the Read Buffer for Drone
@@ -49,31 +48,18 @@ class plutoDrone():
         '''
         Thread that continuously sends RC Data to Drone
         '''
-        #requests = [MSP_RC, MSP_ATTITUDE, MSP_RAW_IMU, MSP_ALTITUDE, MSP_ANALOG]
-        requests = [MSP_ATTITUDE, MSP_ALTITUDE, MSP_RAW_IMU, MSP_ANALOG]
+        requests = [MSP_ATTITUDE, MSP_RAW_IMU, MSP_ALTITUDE, MSP_ANALOG]
 
         self.MSP.sendRequestMSP_ACC_TRIM()
 
         while (self._threadsRunning):
             state = self.activeState.array()
-            '''
-            if (self.activeState.isAutoPilotOn and state[7]):
-                state[0] += self.activeStateAP.rcRoll - 1500
-                state[1] += self.activeStateAP.rcPitch - 1500
-                state[2] += self.activeStateAP.rcThrottle - 1500
-                state[3] += self.activeStateAP.rcYaw - 1500
-            '''
             self.MSP.sendRequestMSP_SET_RAW_RC(state)
             self.MSP.sendRequestMSP_GET_DEBUG(requests)
 
             if (self.activeState.commandType != NONE_COMMAND):
                 self.MSP.sendRequestMSP_SET_COMMAND(self.activeState.commandType)
                 self.activeState.commandType = NONE_COMMAND
-            '''
-            elif (self.activeStateAP.commandType != NONE_COMMAND and self.activeState.isAutoPilotOn and (state[7] == 1500)):
-                self.MSP.sendRequestMSP_SET_COMMAND(self.activeStateAP.commandType)
-                self.activeStateAP.commandType = NONE_COMMAND
-            '''
             
             sleep(0.022)
 
@@ -82,7 +68,11 @@ class plutoDrone():
         Thread that continuously reads response from Drone
         '''
         while (self._threadsRunning):
-            self.sock.readResponseMSP()
+            try:
+                self.sock.readResponseMSP()
+            except Exception as e:
+                print(e)
+                pass
 
     def reconnect(self):
         '''
@@ -99,7 +89,7 @@ class plutoDrone():
         if (self._threadsRunning):
             self._threadsRunning = False
             for _i in self._threads:
-                self._threads[_i].join()
+                _i.join()
         if self._threads:
             self.sock.disconnect()
 
