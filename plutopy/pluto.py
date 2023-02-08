@@ -71,7 +71,6 @@ class plutoDrone():
             try:
                 self.sock.readResponseMSP()
             except Exception as e:
-                print(e)
                 pass
 
     def reconnect(self):
