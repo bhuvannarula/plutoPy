@@ -1,10 +1,10 @@
-# plutoPy
+# plutoPyArUco
 
-Pure-Python Wrapper for Pluto Drone
+Autonomous Control of Pluto Drone using ArUco Marker(s)
 
 # Introduction
 
-**plutoPy** is a pure python wrapper, which enables Python-based remote commands to be used to control the PLUTO drone. This includes connecting to drone through sockets, sending and receiving MSP data, all in python, just by writing simple high-level code
+**plutoPyArUco** is further built on top of the **plutoPy** package, and includes PID Controllers & Filtering on ArUco Markers Data.
 
 # Contents
 
@@ -12,340 +12,70 @@ Pure-Python Wrapper for Pluto Drone
     - Pre-Requisites
     - Installation
     - How to Run
-- [Usage Instructions](#usage-instructions)
-    - Connection
-    - Basic Commands
-    - Control
-    - State & Other Information
-    - Key binds
-- [Structure and Methodology](#structure-and-methodology)
-    - Contents and Hierarchy
-    - Working
-- [Acknowledgements](#acknowledgements)
+- [Implementations](#implementations)
+    - Basic Functions
+    - Altitude Hold
+    - Rectangular Motion
+- [Methodology](#methodology)
+    - Pose Estimation
+    - Controller
 
 # Getting Started
 
-plutoPy is a lightweight package, with its requirements already satisfied in the base installation of Python.
+To understand better how the connection and control system of the drone works please go through the [plutoPy](https://github.com/bhuvannarula/plutoPy) package which is a pre-requisite to this package.
+
+For convenience, plutopy package is already present in this repository.
 
 ## Prerequisites
 
 Python 3 (tested on ≥ 3.6)
+`scipy`
+`opencv-contrib-python==4.6.0.66`
 
 ## Installation
 
-Clone the GitHub repository given below, (plutopy is a package, can be copied as required)
-[https://github.com/bhuvannarula/plutoPy](https://github.com/bhuvannarula/plutoPy)
-
-For global installation of package,
-
-The package can be installed by running the following pip command, (requires Git)
-
-```powershell
-pip install git+https://github.com/bhuvannarula/plutoPy.git
-```
+Clone the GitHub repository given below,
+[https://github.com/bhuvannarula/plutoPyArUco](https://github.com/bhuvannarula/plutoPyArUco)
 
 ## How to Use?
 
-The package, at its heart, creates a drone class that is used for doing any task.
-To import it, simply run the following code(s),
+Basic Logic is based on setting a coordinate, and PID Controller moving the drone to the set coordinate and keeping it stable at that coordinate (target hold). Further actions have been implemented on top of this code.
 
-### For a Drone,
+For further use, refer to [example_AltitudeHold.py](https://github.com/bhuvannarula/plutoPyArUco/blob/main/example_AltitudeHold.py) or [example_MoveRectangle.py](https://github.com/bhuvannarula/plutoPyArUco/blob/main/example_MoveRectangle.py) scripts.
 
-`from plutopy import plutoDrone`
 
-For further use, refer to [example_BasicControls.py](https://github.com/bhuvannarula/plutoPy/blob/main/example_BasicControls.py) script.
+# Implementations
 
-### For a Swarm
+## Basic Functions
 
-`from plutopy import plutoSwarm,`
+**Set Origin**
 
-For further use, refer to [example_DroneSwarm.py](https://github.com/bhuvannarula/plutoPy/blob/main/example_DroneSwarm.py) script.
+To set the origin of the system using the ArUco Marker:
 
-# Usage Instructions
+`aruco.setOrigin()`
 
-## Connection
+**Set Target**
 
-After you have imported *plutoDrone*, use the following commands to establish a connection and open the command line:
+To move the drone to a desired target:
 
-`drone = plutoDrone(IP_ADDRESS, PORT)`
+`aruco.setTarget(X,Y,Z)`
 
-All parameters are optional, and a single drone can be easily initialized on default values (IP : 192.168.4.1, PORT : 23)
+X,Y,Z are the co-ordinates relative to origin.
 
-`drone = plutoDrone()`
+## Altitude Hold
 
-To start the connection to drone, and the threads for communicating with drone, just call the function,
+Altitude Hold has been implemented in ***example_AltitudeHold.py*** file. Refer to the same for further details.
 
-`drone.start()`
+## Rectangular Motion
 
-If the connection fails you can use the following command to reconnect to the drone:
+A Rectangular Motion of drone has been implemented in ***example_MoveRectangle.py*** file. Refer to the same for further details.
 
-`drone.reconnect()`
+# Methodology
 
-If you wish to disconnect you can use:
+## Pose-estimation
 
-`drone.disconnect()`
+We are using the measurements through ArUco markers and using a low pass filter for X & Y co-ordinates and a kalman filter for the Z axis which fuses the data from Accelerometer as well.
 
-## Basic Commands
+## Controller
 
-**Arming**
-
-To pass any command to the motors, you need to arm the drone first. You can arm using:
-
-`drone.control.arm()`
-
-This will also set the throttle to 1000 by default.
-
-**Box Arm**
-
-Box Arm will set the throttle value to 1500 by default.
-
-`drone.control.boxarm()`
-
-**Disarming**
-
-To disarm the drone:
-
-`done.control.disarm()`
-
-**Take Off**
-
-Disarms the drone, and the drone takes off:
-
-`drone.control.take_off()`
-
-**Land**
-
-Landing reduces the throttle speed at a constant rate before stopping them.
-
-`drone.control.land()`
-
-**Reset**
-
-To reset the drone to its default configuration:
-
-`drone.control.reset()`
-
-**Kill**
-
-To kill the motors:
-
-`drone.control.kill()`
-
-## Control
-
-Following commands can be used to control the drone’s position. To change command values or to reconfigure them, you can find them in ***plutopy/commands.py*** file.
-
-**Forward**
-
-To move the drone forward:
-
-`drone.control.forward()`
-
-By default it will change the pitch value to 1600.
-
-**Backward**
-
-To move the drone backward:
-
-`drone.control.backward()`
-
-By default it will change the pitch value to 1400.
-
-**Left**
-
-To move the drone leftward:
-
-`drone.control.left()`
-
-By default it will change the roll value to 1400.
-
-**Right**
-
-To move the drone rightward:
-
-`drone.control.right()`
-
-By default it will change the roll value to 1600.
-
-**Increase Height**
-
-To increase height at constant acceleration:
-
-`drone.control.increase_height()`
-
-By default it will increase the throttle to 1800.
-
-**Decrease Height**
-
-To decrease height at constant acceleration:
-
-`drone.control.decrease_height()`
-
-By default it will decrease the throttle to 1300.
-
-**Throttle**
-
-To set the throttle to particular value:
-
-`drone.rc.rcThrottle = {value`}
-
-**Pitch & Roll**
-
-To set the trim for pitch and roll:
-
-`drone.control.trimRollPitch({trim_roll_value}, {trim_pitch_value})`
-
-To set roll and pitch to a particular value:
-
-`drone.activeState.rcPitch = {value}
-drone.activeState.rcRoll = {value}` 
-
-**Yaw**
-
-To set the drone towards left or right:
-
-`drone.control.right_yaw()
-drone.control.left_yaw()`
-
-By default it sets yaw to 1800 & 1200 respectively.
-
-To set the yaw to particular value:
-
-`drone.rc.rcYaw = {value}`
-
-## State & Other Information
-
-**********State**********
-
-To get the state of the drone:
-
-`drone.state.array()`
-
-Returns an array as [Roll,Pitch,Throttle,Yaw,AUX1,AUX2,AUX3,AUX4].
-You can find more information regarding the AUX parameters [here](https://docs.google.com/document/d/1c2tjbeAuTYk3JZrkazImayqjCKx9w3rND4RTN41ol6U/edit).
-
-You can get other information by using `drone.state.{X}()`
-
-- {X} can be:
-    1. roll
-    2. pitch
-    3. yaw
-    4. battery
-    5. rssi
-    6. accX
-    7. accY
-    8. accZ
-    9. gyroX
-    10. gyroY
-    11. gyroZ
-    12. magX
-    13. magY
-    14. magZ
-    15. alt
-    16. FC_versionMajor
-    17. FC_versionMinor
-    18. FC_versionPatchLevel
-    19. rcRoll
-    20. rcPitch
-    21. rcYaw 
-    22. rcAUX1
-    23. rcAUX2
-    24. rcAUX3
-    25. rcAUX4
-    26. trim_roll
-    27. trim_pitch
-    28. commandType
-    29. isAutoPilotOn
-
-************************************Sensor Information************************************
-
-All in order [x,y,z].
-
-From Gyroscope:
-
-`drone.info.gyro()`
-
-From Accelerometer:
-
-`drone.info.acc()`
-
-From Magnetometer:
-
-`drone.info.mag()`
-
-From all the three sensors:
-
-`drone.info.all9()`
-
-# Structure And Methodology
-
-## Contents and Hierarchy
-
-Following are the contents of the wrapper:
-
-1. **__init__.py**
-    
-    Declaration for module.
-    
-2. **common.py**
-    
-    Some commonly used functions.
-    
-3. **plutostate.py**
-    
-    Contains plutoState class, which stores state data of drone.
-    
-4. **plutoinfo.py**
-    
-    Sensor information.
-    
-5. **reader.py**
-    
-    Serial Reader for response from the Drone.
-    
-6. **plutosock.py**
-    
-    Class for connecting to drone through sockets.
-    
-7. **protocol.py**
-    
-    Class for creating and receiving MSP Packets for communication.
-    
-8. **commands.py**
-    
-    Class for Control commands.
-    
-9. **pluto.py**
-    
-    Main plutoDrone class, which stitches all the classes together.
-    
-10. **plutoswarm.py**
-    
-    Class for easy initialization of Pluto Drone Swarm.
-    
-
-## Working
-
-This wrapper works through a multi-threaded method, in which different threads are responsible for sending and receiving the data from drone. The connection with the drone is implemented using the MSP protocol. Different aspects of the wrapper are explained below.
-
-### Socket
-
-The communication with drone is through low-level sockets, in which requests are sent from client (computer) to host (drone), and response is received.
-
-### Threading
-
-Mainly two threads are initialized for communication, one for sending requests with data to drone, and another thread for receiving response from drone. In this manner, independent two-way communication with drone is implemented.
-
-### Protocol
-
-A modified version of the Multiwii Serial Protocol (MSP) is used by Pluto. There are many packets designed specifically for flight based controllers in this protocol. These packets are manually created in the package, and sent to drone over sockets. More information on this protocol is available at [Multiwii](http://www.multiwii.com/wiki/index.php?title=Multiwii_Serial_Protocol#mw-head), or in this [document](https://docs.google.com/document/d/1c2tjbeAuTYk3JZrkazImayqjCKx9w3rND4RTN41ol6U/edit).
-
-### Integration
-
-All components are integrated using the ********[pluto.py](https://github.com/bhuvannarula/plutoPy/blob/main/plutopy/pluto.py)******** file through **************plutoDrone************** class which initialises the socket, necessary threads and states,  and the control interface, which enable the package to control the drone.
-
-# Acknowledgements
-
-The base logic of this wrapper has been derived from the C++ logic implemented in the Pluto ROS Package, and has been highly customized to make it reliable and easy to use.
-
-[GitHub - DronaAviation/pluto-ros-package: This package canbe used to control Pluto using keyboard, joystick or rostopic](https://github.com/DronaAviation/pluto-ros-package)
+We are using a PID controller to control the drone to set the pitch, roll, and throttle based on the error in the Target and the estimated position. 
