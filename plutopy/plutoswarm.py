@@ -57,17 +57,15 @@ class plutoSwarm:
             for tid in DRONE_IDS:
                 if tid not in self.drones:
                     return self.__missing__(tid)
-                if self[tid]._threadsRunning == False:
-                    #self[tid].start()
-                    pass
+                #if self[tid]._threadsRunning == False:
+                self[tid].start()
                 print(f'Drone "{tid}" Connected!')
                 self.drones[tid][1] = True
 
         else:
             for tid in self.drones:
-                if self[tid]._threadsRunning == False:
-                    #self[tid].start()
-                    pass
+                #if self[tid]._threadsRunning == False:
+                self[tid].start()
                 print(f'Drone "{tid}" Connected!')
                 self.drones[tid][1] = True
 
@@ -82,16 +80,14 @@ class plutoSwarm:
                 if tid not in self.drones:
                     return self.__missing__(tid)
                 if self[tid]._threadsRunning == True:
-                    #self[tid].disconnect()
-                    pass
+                    self[tid].disconnect()
                 print(f'Drone "{tid}" Stopped!')
                 self.drones[tid][1] = False
 
         else:
             for tid in self.drones:
                 if self[tid]._threadsRunning == True:
-                    #self[tid].disconnect()
-                    pass
+                    self[tid].disconnect()
                 print(f'Drone "{tid}" Stopped!')
                 self.drones[tid][1] = False
 
